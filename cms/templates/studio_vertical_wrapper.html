@@ -1,0 +1,20 @@
+<%! from django.utils.translation import ugettext as _ %>
+<section class="xblock-wrapper xblock-wrapper-nestinglevel is-collapsible">
+    <header class="xblock-header">
+        <div class="header-details">
+            <a href="#" data-tooltip="${_('Expand or Collapse')}" class="action expand-collapse expand">
+                <i class="icon-caret-down ui-toggle-expansion"></i>
+                <span class="sr">${_('Expand or Collapse')}</span>
+            </a>
+            <span>${xblock.display_name}</span>
+        </div>
+        <div class="header-actions">
+            <ul class="actions-list">
+                <li class="sr action-item">${_('No Actions')}</li>
+            </ul>
+        </div>
+    </header>
+    <article class="xblock-render">
+${content}
+    </article>
+</section>
