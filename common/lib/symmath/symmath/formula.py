@@ -1,10 +1,10 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 """
 Flexible python representation of a symbolic mathematical formula.
 Acceptes Presentation MathML, Content MathML (and could also do OpenMath).
 Provides sympy representation.
 """
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 #
 # File:   formula.py
 # Date:   04-May-12 (creation)
@@ -145,21 +145,21 @@ def my_sympify(expr, normphase=False, matrix=False, abcsym=False, do_qubit=False
                 ophase = sympy.sympify('exp(-I*arg(%s))' % sexpr[0])
                 sexpr = [sympy.Mul(x, ophase) for x in sexpr]
 
-    def to_matrix(x):
+    def to_matrix(expr):
         """
         Convert a list, or list of lists to a matrix.
         """
-        # if x is a list of lists, and is rectangular, then return Matrix(x)
-        if not type(x) == list:
-            return x
-        for row in x:
+        # if expr is a list of lists, and is rectangular, then return Matrix(expr)
+        if not type(expr) == list:
+            return expr
+        for row in expr:
             if (not type(row) == list):
-                return x
-        rdim = len(x[0])
-        for row in x:
+                return expr
+        rdim = len(expr[0])
+        for row in expr:
             if not len(row) == rdim:
-                return x
-        return sympy.Matrix(x)
+                return expr
+        return sympy.Matrix(expr)
 
     if matrix:
         sexpr = to_matrix(sexpr)
@@ -170,11 +170,11 @@ def my_sympify(expr, normphase=False, matrix=False, abcsym=False, do_qubit=False
 
 
 class formula(object):
-    '''
+    """
     Representation of a mathematical formula object.  Accepts mathml math expression
     for constructing, and can produce sympy translation.  The formula may or may not
     include an assignment (=).
-    '''
+    """
     def __init__(self, expr, asciimath='', options=None):
         self.expr = expr.strip()
         self.asciimath = asciimath
@@ -198,8 +198,8 @@ class formula(object):
         """
         Recursively fix greek letters in passed in xml.
         """
-        def gettag(x):
-            return re.sub('{http://[^}]+}', '', x.tag)
+        def gettag(expr):
+            return re.sub('{http://[^}]+}', '', expr.tag)
 
         for k in xml:
             tag = gettag(k)
@@ -207,9 +207,9 @@ class formula(object):
                 usym = unicode(k.text)
                 try:
                     udata = unicodedata.name(usym)
-                except Exception, err:
+                except Exception:
                     udata = None
-                #print "usym = %s, udata=%s" % (usym,udata)
+                # print "usym = %s, udata=%s" % (usym,udata)
                 if udata:			# eg "GREEK SMALL LETTER BETA"
                     if 'GREEK' in udata:
                         usym = udata.split(' ')[-1]
@@ -221,22 +221,22 @@ class formula(object):
         return xml
 
     def preprocess_pmathml(self, xml):
-        r'''
+        r"""
         Pre-process presentation MathML from ASCIIMathML to make it more
         acceptable for SnuggleTeX, and also to accomodate some sympy
         conventions (eg hat(i) for \hat{i}).
 
         This method would be a good spot to look for an integral and convert
         it, if possible...
-        '''
+        """
 
         if type(xml) == str or type(xml) == unicode:
             xml = etree.fromstring(xml)		# TODO: wrap in try
 
         xml = self.fix_greek_in_mathml(xml)	 # convert greek utf letters to greek spelled out in ascii
 
-        def gettag(x):
-            return re.sub('{http://[^}]+}', '', x.tag)
+        def gettag(expr):
+            return re.sub('{http://[^}]+}', '', expr.tag)
 
         def fix_pmathml(xml):
             """
@@ -280,7 +280,7 @@ class formula(object):
         fix_hat(xml)
 
         def flatten_pmathml(xml):
-            '''
+            """
             Give the text version of certain PMathML elements
 
             Sometimes MathML will be given with each letter separated (it
@@ -292,7 +292,7 @@ class formula(object):
               <mi>x</mi>
             </mrow>
             and returns 'max', for easier use later on.
-            '''
+            """
             tag = gettag(xml)
             if tag == 'mn':
                 return xml.text
@@ -303,12 +303,12 @@ class formula(object):
             raise Exception('[flatten_pmathml] unknown tag %s' % tag)
 
         def fix_mathvariant(parent):
-            '''
+            """
             Fix certain kinds of math variants
 
             Literally replace <mstyle mathvariant="script"><mi>N</mi></mstyle>
             with 'scriptN'. There have been problems using script_N or script(N)
-            '''
+            """
             for child in parent:
                 if (gettag(child) == 'mstyle' and child.get('mathvariant') == 'script'):
                     newchild = etree.Element('mi')
@@ -321,7 +321,7 @@ class formula(object):
         # they have the character \u200b in the superscript
         # replace them with a__b so snuggle doesn't get confused
         def fix_superscripts(xml):
-            ''' Look for and replace sup elements with 'X__Y' or 'X_Y__Z'
+            """ Look for and replace sup elements with 'X__Y' or 'X_Y__Z'
 
             In the javascript, variables with '__X' in them had an invisible
             character inserted into the sup (to distinguish from powers)
@@ -353,7 +353,7 @@ class formula(object):
               </mrow>
             </msup>
             to be 'x__B'
-            '''
+            """
             for k in xml:
                 tag = gettag(k)
 
@@ -410,7 +410,7 @@ class formula(object):
                 fix_msubsup(child)
         fix_msubsup(xml)
 
-        self.xml = xml
+        self.xml = xml  # pylint: disable=attribute-defined-outside-init
         return self.xml
 
     def get_content_mathml(self):
@@ -421,10 +421,10 @@ class formula(object):
         try:
             xml = self.preprocess_pmathml(self.expr)
         except Exception, err:
-            log.warning('Err %s while preprocessing; expr=%s' % (err, self.expr))
+            log.warning('Err %s while preprocessing; expr=%s', err, self.expr)
             return "<html>Error! Cannot process pmathml</html>"
         pmathml = etree.tostring(xml, pretty_print=True)
-        self.the_pmathml = pmathml
+        self.the_pmathml = pmathml  # pylint: disable=attribute-defined-outside-init
 
         # convert to cmathml
         self.the_cmathml = self.GetContentMathML(self.asciimath, pmathml)
@@ -433,13 +433,13 @@ class formula(object):
     cmathml = property(get_content_mathml, None, None, 'content MathML representation')
 
     def make_sympy(self, xml=None):
-        '''
+        """
         Return sympy expression for the math formula.
         The math formula is converted to Content MathML then that is parsed.
 
         This is a recursive function, called on every CMML node. Support for
         more functions can be added by modifying opdict, abould halfway down
-        '''
+        """
 
         if self.the_sympy:
             return self.the_sympy
@@ -466,8 +466,8 @@ class formula(object):
                 self.the_sympy = self.make_sympy(xml[0])
             return self.the_sympy
 
-        def gettag(x):
-            return re.sub('{http://[^}]+}', '', x.tag)
+        def gettag(expr):
+            return re.sub('{http://[^}]+}', '', expr.tag)
 
         # simple math
         def op_divide(*args):
@@ -492,7 +492,7 @@ class formula(object):
 
         opdict = {
             'plus': op_plus,
-            'divide': operator.div,
+            'divide': operator.div,  # should this be op_divide?
             'times': op_times,
             'minus': op_minus,
             'root': sympy.sqrt,
@@ -519,15 +519,15 @@ class formula(object):
             'ln': sympy.ln,
         }
 
-        # simple sumbols
+        # simple symbols - TODO is this code used?
         nums1dict = {
             'pi': sympy.pi,
         }
 
         def parsePresentationMathMLSymbol(xml):
-            '''
+            """
             Parse <msub>, <msup>, <mi>, and <mn>
-            '''
+            """
             tag = gettag(xml)
             if tag == 'mn':
                 return xml.text
@@ -547,13 +547,13 @@ class formula(object):
         if tag == 'apply':		# apply operator
             opstr = gettag(xml[0])
             if opstr in opdict:
-                op = opdict[opstr]
-                args = [self.make_sympy(x) for x in xml[1:]]
+                op = opdict[opstr]  # pylint: disable=invalid-name
+                args = [self.make_sympy(expr) for expr in xml[1:]]
                 try:
                     res = op(*args)
                 except Exception, err:
-                    self.args = args
-                    self.op = op
+                    self.args = args  # pylint: disable=attribute-defined-outside-init
+                    self.op = op      # pylint: disable=attribute-defined-outside-init, invalid-name
                     raise Exception('[formula] error=%s failed to apply %s to args=%s' % (err, opstr, args))
                 return res
             else:
@@ -563,13 +563,13 @@ class formula(object):
             if gettag(xml[0]) == 'matrix':
                 return self.make_sympy(xml[0])
             else:
-                return [self.make_sympy(x) for x in xml]
+                return [self.make_sympy(expr) for expr in xml]
 
         elif tag == 'matrix':
-            return sympy.Matrix([self.make_sympy(x) for x in xml])
+            return sympy.Matrix([self.make_sympy(expr) for expr in xml])
 
         elif tag == 'vector':
-            return [self.make_sympy(x) for x in xml]
+            return [self.make_sympy(expr) for expr in xml]
 
         # atoms are below
 
@@ -601,9 +601,9 @@ class formula(object):
         """
         Handle requests to snuggletex API to convert the Ascii math to MathML
         """
-        # URL = 'http://192.168.1.2:8080/snuggletex-webapp-1.2.2/ASCIIMathMLUpConversionDemo'
-        # URL = 'http://127.0.0.1:8080/snuggletex-webapp-1.2.2/ASCIIMathMLUpConversionDemo'
-        URL = 'https://math-xserver.mitx.mit.edu/snuggletex-webapp-1.2.2/ASCIIMathMLUpConversionDemo'
+        # url = 'http://192.168.1.2:8080/snuggletex-webapp-1.2.2/ASCIIMathMLUpConversionDemo'
+        # url = 'http://127.0.0.1:8080/snuggletex-webapp-1.2.2/ASCIIMathMLUpConversionDemo'
+        url = 'https://math-xserver.mitx.mit.edu/snuggletex-webapp-1.2.2/ASCIIMathMLUpConversionDemo'
 
         if 1:
             payload = {
@@ -612,12 +612,10 @@ class formula(object):
                 #'asciiMathML':unicode(mathml).encode('utf-8'),
             }
             headers = {'User-Agent': "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13"}
-            r = requests.post(URL, data=payload, headers=headers, verify=False)
-            r.encoding = 'utf-8'
-            ret = r.text
-            #print "encoding: ",r.encoding
-
-        # return ret
+            request = requests.post(url, data=payload, headers=headers, verify=False)
+            request.encoding = 'utf-8'
+            ret = request.text
+            # print "encoding: ", request.encoding
 
         mode = 0
         cmathml = []
@@ -630,11 +628,9 @@ class formula(object):
                     mode = 0
                     continue
                 cmathml.append(k)
-        # return '\n'.join(cmathml)
         cmathml = '\n'.join(cmathml[2:])
         cmathml = '<math xmlns="http://www.w3.org/1998/Math/MathML">\n' + unescape(cmathml) + '\n</math>'
         # print cmathml
-        #return unicode(cmathml)
         return cmathml
 
 #-----------------------------------------------------------------------------
@@ -642,7 +638,7 @@ class formula(object):
 
 def test1():
     """Test XML strings - addition"""
-    xmlstr = '''
+    xmlstr = """
 <math xmlns="http://www.w3.org/1998/Math/MathML">
    <apply>
       <plus/>
@@ -650,13 +646,13 @@ def test1():
       <cn>2</cn>
    </apply>
 </math>
-    '''
+    """
     return formula(xmlstr)
 
 
 def test2():
     """Test XML strings - addition, Greek alpha"""
-    xmlstr = u'''
+    xmlstr = u"""
 <math xmlns="http://www.w3.org/1998/Math/MathML">
    <apply>
       <plus/>
@@ -668,13 +664,13 @@ def test2():
       </apply>
    </apply>
 </math>
-    '''
+    """
     return formula(xmlstr)
 
 
 def test3():
     """Test XML strings - addition, Greek gamma"""
-    xmlstr = '''
+    xmlstr = """
 <math xmlns="http://www.w3.org/1998/Math/MathML">
    <apply>
       <divide/>
@@ -686,13 +682,13 @@ def test3():
       </apply>
    </apply>
 </math>
-    '''
+    """
     return formula(xmlstr)
 
 
 def test4():
     """Test XML strings - addition, Greek alpha, mfrac"""
-    xmlstr = u'''
+    xmlstr = u"""
 <math xmlns="http://www.w3.org/1998/Math/MathML">
   <mstyle displaystyle="true">
     <mn>1</mn>
@@ -703,13 +699,13 @@ def test4():
     </mfrac>
   </mstyle>
 </math>
-'''
+"""
     return formula(xmlstr)
 
 
 def test5():
     """Test XML strings - sum of two matrices"""
-    xmlstr = u'''
+    xmlstr = u"""
 <math xmlns="http://www.w3.org/1998/Math/MathML">
   <mstyle displaystyle="true">
     <mrow>
@@ -768,13 +764,13 @@ def test5():
     </mrow>
   </mstyle>
 </math>
-'''
+"""
     return formula(xmlstr)
 
 
 def test6():
     """Test XML strings - imaginary numbers"""
-    xmlstr = u'''
+    xmlstr = u"""
 <math xmlns="http://www.w3.org/1998/Math/MathML">
   <mstyle displaystyle="true">
     <mn>1</mn>
@@ -782,5 +778,5 @@ def test6():
     <mi>i</mi>
   </mstyle>
 </math>
-'''
+"""
     return formula(xmlstr, options='imaginary')
