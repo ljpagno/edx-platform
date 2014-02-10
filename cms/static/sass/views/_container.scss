@@ -53,8 +53,10 @@ body.view-container {
 
   // xBlock Nesting Level Styling
   .xblock-wrapper-nestinglevel {
-    margin: $baseline/2;
+    margin: ($baseline/2);
     border: none;
+    padding-bottom: ($baseline/2);
+    min-height: ($baseline*6);
     box-shadow: none;
 
     &:hover {
@@ -64,7 +66,7 @@ body.view-container {
 
     .xblock-header {
       display: block;
-      margin-bottom: $baseline/2;
+      margin-bottom: ($baseline/2);
       border-bottom: none;
       background: none;
       box-shadow: none;
@@ -83,7 +85,7 @@ body.view-container {
 
   // xBlock Element Level Styling
   .xblock-wrapper-elementlevel {
-    margin: 0px $baseline*2;
+    margin: 0px ($baseline*2) $baseline ($baseline*2);
     border-radius: $baseline/4;
     background-color: $white;
     box-shadow: none;
@@ -101,7 +103,7 @@ body.view-container {
       .xblock-header {
         margin-bottom: 0px;
         border-bottom: 0px;
-        border-radius: $baseline/5;
+        border-radius: ($baseline/5);
 
         .xblock-details {
           font-size: .9em;
@@ -116,16 +118,12 @@ body.view-container {
     .xblock-header {
       margin-bottom: 0px;
       border-bottom: 1px solid $gray-l4;
-      background-color: $blue-l5;
+      background-color: $gray-l6;
       font-weight: 300;
       font-size: .9em;
     }
 
     .xblock-render {
-      padding: $baseline;
-
-      //temporary color change
-      color: $gray-l5;
     }
   }
 }
@@ -192,7 +190,7 @@ body.course.container,.view-container {
 
           .rendered-component {
             display: none;
-            border-radius: 3px 3px 0 0;
+            border-radius: 3px 3px 0px 0px;
             background: #fff;
           }
 
@@ -220,7 +218,7 @@ body.course.container,.view-container {
                 @include box-sizing(border-box);
                 position: absolute;
                 bottom: 5px;
-                left: 0;
+                left: 0px;
                 padding: $baseline/2;
                 width: 100%;
                 color: #fff;

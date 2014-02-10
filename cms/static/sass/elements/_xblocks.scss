@@ -1,13 +1,13 @@
 // xblocks - default styling
 // ==========================
-// The following is the default styling structure and base for xblocks. Below is is older styling from the unit page, which will be refactored out slowly but is included here for reference of what styling has not yet been 'ported' to the container and xblock styling files.
 
-section.xblock-wrapper {
+// UI: xblock wrapper
+.xblock-wrapper {
   border: 1px solid $gray-l4;
-  margin: $baseline/2;
-  border-radius: $baseline/5;
+  margin: ($baseline/2);
+  border-radius: ($baseline/5);
   background: $white;
-  box-shadow: 0 1px 1px $shadow-l1;
+  box-shadow: 0px 1px 1px $shadow-l1;
 
   //TODO - account for z-index issues that may steam from video player once container page is editable.
 
@@ -16,12 +16,13 @@ section.xblock-wrapper {
     box-shadow: 0px 0px 1px $shadow;
   }
 
-  header.xblock-header {
-    line-height: $baseline*2.5;
-    padding: 0 0 0 $baseline*.75;
+  // UI: xblock header
+  .xblock-header {
+    line-height: ($baseline*2.5);
+    padding: 0px 0px 0px ($baseline*.75);
     border-bottom: 1px solid $gray-l4;
-    border-radius: $baseline/5;
-    border-radius: $baseline/5 $baseline/5 0 0;
+    border-radius: ($baseline/5);
+    border-radius: ($baseline/5) ($baseline/5) 0px 0px;
     background-color: $blue-l5;
 
     .header-details {
@@ -35,33 +36,25 @@ section.xblock-wrapper {
       display: inline-block;
       width: 38%;
       text-align: right;
-
-      //TODO - Add in visibility changes here depending on whether or not xblock is editable.
     }
-
-
   }
 
-  article.xblock-render {
+  .xblock-render {
     @extend %anim-fadeIn;
   }
-
-  ol.xblock-list {
-    padding-bottom: $baseline/2;
-  }
-
-  li.xblock-listitem {
-    margin-bottom: $baseline;
-  }
 }
+// ====================
 
-// xblocks - general action list styles
-// uses similar styling block as _outline.scss, should be separated or more cleanly inherited from general xblocks styling. (#TODO)
+// xblocks - calls-to-action
+
+// ====================
+
+// UI: general actions list
 .xblock-wrapper {
 
   .actions-list {
     display: inline-block;
-    margin-bottom: 0;
+    margin-bottom: 0px;
   }
 
   .action-item {
@@ -69,7 +62,7 @@ section.xblock-wrapper {
 
     .action-button {
       @include transition(all $tmg-f2 ease-in-out 0s);
-      padding: $baseline/4 $baseline/2;
+      padding: ($baseline/4) ($baseline/2);
       width: auto;
       height: ($baseline*1.5);
       border-radius: 3px;
@@ -99,7 +92,7 @@ section.xblock-wrapper {
       //reset old drag handle style
       &.drag-handle {
         float: none;
-        margin: 0;
+        margin: 0px;
         background: transparent url(../img/drag-handles.png) right 5px no-repeat;
         text-align: center;
       }
@@ -107,16 +100,27 @@ section.xblock-wrapper {
   }
 }
 
+// ====================
 
+// UI: xblock drag and drop
 
-// xblocks - specific action list styles
-// uses similar styling block as _outline.scss, should be separated or more cleanly inherited (#TODO)
-.xblock-wrapper {
+// TODO: current read only version of container page does not support drag and drop, extend from _controls.scss
+.xblock-wrapper.is-draggable{
+}
+
+// ====================
+
+// UI: xblock is expandable and collapsible
+
+// TODO: instead of duplicating similar styling on both _outline.scss and _xblocks.scss, a general is-collapsible class should exist in controls.scss
+
+.xblock-wrapper.is-collapsible {
+
   .expand-collapse {
     @include transition(all $tmg-f2 linear 0s);
     display: inline-block;
     vertical-align: top;
-    margin: 0 ($baseline/4);
+    margin: 0px ($baseline/4);
     color: $gray-l2;
 
     &:hover {
