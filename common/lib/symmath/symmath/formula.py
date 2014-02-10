@@ -23,9 +23,6 @@ from sympy.printing.str import StrPrinter
 from sympy import latex, sympify
 from sympy.physics.quantum.qubit import Qubit
 from sympy.physics.quantum.state import Ket
-# from sympy import exp, pi, I
-# from sympy.core.operations import LatticeOp
-# import sympy.physics.quantum.qubit
 
 from xml.sax.saxutils import unescape
 import unicodedata
@@ -46,9 +43,6 @@ class dot(sympy.operations.LatticeOp):	 # pylint: disable=invalid-name, no-membe
     """my dot product"""
     zero = sympy.Symbol('dotzero')
     identity = sympy.Symbol('dotidentity')
-
-#class dot(sympy.Mul):	# my dot product
-#    is_Mul = False
 
 
 def _print_dot(_self, expr):
@@ -73,9 +67,11 @@ StrPrinter._print_hat = _print_hat  # pylint: disable=protected-access
 
 
 def to_latex(expr):
+    """
+    Convert expression to latex mathjax format
+    """
     if expr is None:
         return ''
-    # LatexPrinter._print_dot = _print_dot
     expr_s = latex(expr)
     expr_s = expr_s.replace(r'\XI', 'XI')	 # workaround for strange greek
 
@@ -96,6 +92,10 @@ def to_latex(expr):
 
 
 def my_evalf(expr, chop=False):
+    """
+    Enhanced sympy evalf to handle lists of expressions
+    and catch eval failures without dropping out.
+    """
     if type(expr) == list:
         try:
             return [x.evalf(chop=chop) for x in expr]
@@ -106,11 +106,11 @@ def my_evalf(expr, chop=False):
     except:
         return expr
 
-#-----------------------------------------------------------------------------
-# my version of sympify to import expression into sympy
-
 
 def my_sympify(expr, normphase=False, matrix=False, abcsym=False, do_qubit=False, symtab=None):
+    """
+    Version of sympify to import expression into sympy
+    """
     # make all lowercase real?
     if symtab:
         varset = symtab
@@ -122,9 +122,6 @@ def my_sympify(expr, normphase=False, matrix=False, abcsym=False, do_qubit=False
                   'Q': sympy.Symbol('Q'),	 # otherwise it is a sympy "ask key"
                   'I': sympy.Symbol('I'),	 # otherwise it is sqrt(-1)
                   'N': sympy.Symbol('N'),	 # or it is some kind of sympy function
-                  #'X':sympy.sympify('Matrix([[0,1],[1,0]])'),
-                  #'Y':sympy.sympify('Matrix([[0,-I],[I,0]])'),
-                  #'Z':sympy.sympify('Matrix([[1,0],[0,-1]])'),
                   'ZZ': sympy.Symbol('ZZ'),	 # otherwise it is the PythonIntegerRing
                   'XI': sympy.Symbol('XI'),	 # otherwise it is the capital \XI
                   'hat': sympy.Function('hat'),	 # for unit vectors (8.02)
@@ -148,7 +145,11 @@ def my_sympify(expr, normphase=False, matrix=False, abcsym=False, do_qubit=False
                 ophase = sympy.sympify('exp(-I*arg(%s))' % sexpr[0])
                 sexpr = [sympy.Mul(x, ophase) for x in sexpr]
 
-    def to_matrix(x):		# if x is a list of lists, and is rectangular, then return Matrix(x)
+    def to_matrix(x):
+        """
+        Convert a list, or list of lists to a matrix.
+        """
+        # if x is a list of lists, and is rectangular, then return Matrix(x)
         if not type(x) == list:
             return x
         for row in x:
@@ -182,12 +183,21 @@ class formula(object):
         self.options = options
 
     def is_presentation_mathml(self):
+        """
+        Check if formula is in mathml presentation format.
+        """
         return '<mstyle' in self.expr
 
     def is_mathml(self):
+        """
+        Check if formula is in mathml format.
+        """
         return '<math ' in self.expr
 
     def fix_greek_in_mathml(self, xml):
+        """
+        Recursively fix greek letters in passed in xml.
+        """
         def gettag(x):
             return re.sub('{http://[^}]+}', '', x.tag)
 
@@ -228,10 +238,12 @@ class formula(object):
         def gettag(x):
             return re.sub('{http://[^}]+}', '', x.tag)
 
-        # f and g are processed as functions by asciimathml, eg  "f-2" turns into "<mrow><mi>f</mi><mo>-</mo></mrow><mn>2</mn>"
-        # this is really terrible for turning into cmathml.
-        # undo this here.
         def fix_pmathml(xml):
+            """
+            f and g are processed as functions by asciimathml, eg "f-2" turns
+            into "<mrow><mi>f</mi><mo>-</mo></mrow><mn>2</mn>" this is
+            really terrible for turning into cmathml.  undo this here.
+            """
             for k in xml:
                 tag = gettag(k)
                 if tag == 'mrow':
@@ -245,10 +257,13 @@ class formula(object):
 
         fix_pmathml(xml)
 
-        # hat i is turned into <mover><mi>i</mi><mo>^</mo></mover> ; mangle this into <mi>hat(f)</mi>
-        # hat i also somtimes turned into <mover><mrow> <mi>j</mi> </mrow><mo>^</mo></mover>
 
         def fix_hat(xml):
+            """
+            hat i is turned into <mover><mi>i</mi><mo>^</mo></mover> ; mangle
+            this into <mi>hat(f)</mi> hat i also somtimes turned into
+            <mover><mrow> <mi>j</mi> </mrow><mo>^</mo></mover>
+            """
             for k in xml:
                 tag = gettag(k)
                 if tag == 'mover':
@@ -265,7 +280,8 @@ class formula(object):
         fix_hat(xml)
 
         def flatten_pmathml(xml):
-            ''' Give the text version of certain PMathML elements
+            '''
+            Give the text version of certain PMathML elements
 
             Sometimes MathML will be given with each letter separated (it
             doesn't know if its implicit multiplication or what). From an xml
@@ -287,7 +303,8 @@ class formula(object):
             raise Exception('[flatten_pmathml] unknown tag %s' % tag)
 
         def fix_mathvariant(parent):
-            '''Fix certain kinds of math variants
+            '''
+            Fix certain kinds of math variants
 
             Literally replace <mstyle mathvariant="script"><mi>N</mi></mstyle>
             with 'scriptN'. There have been problems using script_N or script(N)
@@ -373,10 +390,12 @@ class formula(object):
                 fix_superscripts(k)
         fix_superscripts(xml)
 
-        # Snuggle returns an error when it sees an <msubsup>
-        # replace such elements with an <msup>, except the first element is of
-        # the form a_b. I.e. map a_b^c => (a_b)^c
         def fix_msubsup(parent):
+            """
+            Snuggle returns an error when it sees an <msubsup> replace such
+            elements with an <msup>, except the first element is of
+            the form a_b. I.e. map a_b^c => (a_b)^c
+            """
             for child in parent:
                 # fix msubsup
                 if (gettag(child) == 'msubsup' and len(child) == 3):
@@ -476,10 +495,6 @@ class formula(object):
             'divide': operator.div,
             'times': op_times,
             'minus': op_minus,
-            #'plus': sympy.Add,
-            #'divide' : op_divide,
-            #'times' : sympy.Mul,
-            'minus': op_minus,
             'root': sympy.sqrt,
             'power': sympy.Pow,
             'sin': sympy.sin,
@@ -526,7 +541,6 @@ class formula(object):
 
         # parser tree for Content MathML
         tag = gettag(xml)
-        # print "tag = ",tag
 
         # first do compound objects
 
@@ -584,6 +598,9 @@ class formula(object):
     sympy = property(make_sympy, None, None, 'sympy representation')
 
     def GetContentMathML(self, asciimath, mathml):
+        """
+        Handle requests to snuggletex API to convert the Ascii math to MathML
+        """
         # URL = 'http://192.168.1.2:8080/snuggletex-webapp-1.2.2/ASCIIMathMLUpConversionDemo'
         # URL = 'http://127.0.0.1:8080/snuggletex-webapp-1.2.2/ASCIIMathMLUpConversionDemo'
         URL = 'https://math-xserver.mitx.mit.edu/snuggletex-webapp-1.2.2/ASCIIMathMLUpConversionDemo'
