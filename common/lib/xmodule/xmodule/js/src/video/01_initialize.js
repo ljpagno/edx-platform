@@ -292,12 +292,12 @@ function (VideoPlayer, VideoStorage) {
                     'showCaptions': isBoolean,
                     'autoplay': isBoolean,
                     'autohideHtml5': isBoolean,
-                    'position': function (value) {
-                        console.log('[conversions::position]: storage.getItem("position") = ', storage.getItem('position', true));
-                        console.log('[conversions::position]: Number(value) = ', Number(value));
-                        console.log('[conversions::position]: 0 = ', 0);
+                    'savedVideoPosition': function (value) {
+                        console.log('[conversions::savedVideoPosition]: storage.getItem("savedVideoPosition") = ', storage.getItem('savedVideoPosition', true));
+                        console.log('[conversions::savedVideoPosition]: Number(value) = ', Number(value));
+                        console.log('[conversions::savedVideoPosition]: 0 = ', 0);
 
-                        return storage.getItem('position', true) ||
+                        return storage.getItem('savedVideoPosition', true) ||
                             Number(value) ||
                             0;
                     },
@@ -680,7 +680,7 @@ function (VideoPlayer, VideoStorage) {
     function saveState(async, data) {
         if (!($.isPlainObject(data))) {
             data = {
-                position: this.videoPlayer.currentTime
+                saved_video_position: this.videoPlayer.currentTime
             };
         }
 
@@ -688,21 +688,13 @@ function (VideoPlayer, VideoStorage) {
             this.storage.setItem('speed', data.speed, true);
         }
 
-        if (data.position) {
-            if (data.position <= 3) {
-                delete data.position;
+        if (data.saved_video_position) {
+            this.storage.setItem('savedVideoPosition', data.saved_video_position, true);
 
-                if (!data.speed) {
-                    return;
-                }
-            } else {
-                this.storage.setItem('position', data.position, true);
-
-                data.position = Time.formatFull(data.position);
-            }
+            data.saved_video_position = Time.formatFull(data.saved_video_position);
         }
 
-        console.log('[saveState]: position = ', data.position);
+        console.log('[saveState]: saved_video_position = ', data.saved_video_position);
         console.log('[saveState]: speed = ', data.speed);
 
         $.ajax({

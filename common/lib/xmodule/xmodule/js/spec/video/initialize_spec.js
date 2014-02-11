@@ -51,7 +51,7 @@ function (Initialize) {
                     positionVal: videoPlayerCurrentTime,
                     data: undefined,
                     ajaxData: {
-                        position: Time.formatFull(Math.round(videoPlayerCurrentTime))
+                        saved_video_position: Time.formatFull(Math.round(videoPlayerCurrentTime))
                     }
                 });
             });
@@ -76,10 +76,10 @@ function (Initialize) {
                     speedVal: undefined,
                     positionVal: newCurrentTime,
                     data: {
-                        position: newCurrentTime
+                        saved_video_position: newCurrentTime
                     },
                     ajaxData: {
-                        position: Time.formatFull(Math.round(newCurrentTime))
+                        saved_video_position: Time.formatFull(Math.round(newCurrentTime))
                     }
                 });
             });
@@ -91,11 +91,11 @@ function (Initialize) {
                     positionVal: Math.round(newCurrentTime),
                     data: {
                         speed: speed,
-                        position: Math.round(newCurrentTime)
+                        saved_video_position: Math.round(newCurrentTime)
                     },
                     ajaxData: {
                         speed: speed,
-                        position: Time.formatFull(Math.round(newCurrentTime))
+                        saved_video_position: Time.formatFull(Math.round(newCurrentTime))
                     }
                 });
             });
@@ -130,7 +130,7 @@ function (Initialize) {
                 }
                 if (positionVal) {
                     expect(state.storage.setItem).toHaveBeenCalledWith(
-                        'position',
+                        'savedVideoPosition',
                         positionVal,
                         true
                     );

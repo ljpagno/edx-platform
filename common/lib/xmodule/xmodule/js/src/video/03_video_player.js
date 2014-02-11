@@ -649,7 +649,7 @@ function (HTML5Video, Resizer) {
     function updatePlayTime(time) {
         var videoPlayer = this.videoPlayer,
             duration = this.videoPlayer.duration(),
-            position = this.config.position,
+            savedVideoPosition = this.config.savedVideoPosition,
             isNewSpeed = videoPlayer.seekToStartTimeOldSpeed !== this.speed,
             durationChange, tempStartTime, tempEndTime, youTubeId,
             startTime, endTime;
@@ -722,20 +722,20 @@ function (HTML5Video, Resizer) {
             // performed already such a seek.
             if (
                 durationChange === false &&
-                (videoPlayer.startTime > 0 || position !== 0) &&
+                (videoPlayer.startTime > 0 || savedVideoPosition !== 0) &&
                 !(tempStartTime === 0 && tempEndTime === null)
             ) {
                 startTime = this.videoPlayer.startTime;
                 endTime = this.videoPlayer.endTime;
 
                 if (startTime) {
-                    if (startTime < position && endTime > position) {
-                        time = position;
+                    if (startTime < savedVideoPosition && endTime > savedVideoPosition) {
+                        time = savedVideoPosition;
                     } else {
                         time = startTime;
                     }
                 } else {
-                    time = position;
+                    time = savedVideoPosition;
                 }
 
                 // After a bug came up (BLD-708: "In Firefox YouTube video with

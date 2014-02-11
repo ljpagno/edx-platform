@@ -46,7 +46,7 @@ class VideoFields(object):
         default="Video",
         scope=Scope.settings
     )
-    position = RelativeTime(
+    saved_video_position = RelativeTime(
         help="Current position in the video",
         scope=Scope.user_state,
         default=datetime.timedelta(seconds=0)
@@ -186,18 +186,17 @@ class VideoModule(VideoFields, XModule):
     js_module_name = "Video"
 
     def handle_ajax(self, dispatch, data):
-        ACCEPTED_KEYS = ['speed', u'speed', 'position', u'position']
+        ACCEPTED_KEYS = ['speed', 'saved_video_position']
 
         if dispatch == 'save_user_state':
             for key in data:
                 if hasattr(self, key) and key in ACCEPTED_KEYS:
-                    if key == 'position' or key == u'position':
+                    if key == 'saved_video_position':
                         relative_position = RelativeTime.isotime_to_timedelta(data[key])
-                        # setattr(self, key, relative_position)
-                        self.position = relative_position
-                    # else:
-                    #     setattr(self, key, json.loads(data[key]))
-                    if key == 'speed' or key == u'speed':
+                        self.saved_video_position = relative_position
+                    else:
+                        setattr(self, key, json.loads(data[key]))
+                    if key == 'speed':
                         self.global_speed = self.speed
 
             log.debug(u"Test.")
@@ -242,7 +241,7 @@ class VideoModule(VideoFields, XModule):
             'sources': sources,
             'speed': json.dumps(self.speed),
             'general_speed': self.global_speed,
-            'position': self.position.total_seconds(),
+            'saved_video_position': self.saved_video_position.total_seconds(),
             'start': self.start_time.total_seconds(),
             'sub': self.sub,
             'track': track_url,

@@ -230,7 +230,7 @@
             });
 
             it('when position is not 0: cue is called with stored position value', function () {
-                state.config.position = 15;
+                state.config.savedVideoPosition = 15;
 
                 state.videoPlayer.updatePlayTime(10);
                 expect(state.videoPlayer.player.cueVideoById).toHaveBeenCalledWith('cogebirgzzM', 15);
